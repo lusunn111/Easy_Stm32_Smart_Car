@@ -2,8 +2,10 @@
 #include "OLED.h"
 
 extern volatile int32_t round_cnt;
-const int N = 26;
+const int N = 13*48*2;
 int8_t cnted = 0;
+const double D = 6.8;
+const double PI = 3.1415926;
 
 void TIM3_Encoder_Init(void) {
     // 启用GPIOA和TIM3时钟
@@ -20,7 +22,7 @@ void TIM3_Encoder_Init(void) {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     TIM_TimeBaseStructure.TIM_Prescaler = 0;            // 不分频
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数
-    TIM_TimeBaseStructure.TIM_Period = 10*N-1;              // ARR值设为12
+    TIM_TimeBaseStructure.TIM_Period = N-1;              // ARR值设为12
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
@@ -52,13 +54,14 @@ void TIM3_Encoder_Start(void) {
 void TIM3_IRQHandler(void) {
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
 				if(cnted){
-				  round_cnt++;
-					OLED_ShowString(4,1,"Round:");
-					OLED_ShowNum(4,7,round_cnt,6);
+				  round_cnt++;																																
 				}else{
 					++cnted;
 				}
 
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
     }
+}
+int distance_get(){
+	return (int)(1.0*round_cnt*PI*D);
 }

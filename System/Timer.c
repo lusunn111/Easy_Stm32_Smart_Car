@@ -1,3 +1,10 @@
+/*
+
+Author:lusunn111
+
+Function:TIME CNT
+
+*/
 #include "stm32f10x.h"                  // Device header
 #include "OLED.h"
 /**
@@ -10,6 +17,7 @@ extern int8_t time_du;
 unsigned int time_cnt = 0;
 void Timer_Init(void)
 {
+	time_du = 0;
 	/*开启时钟*/
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);			//开启TIM2的时钟
 	
@@ -56,12 +64,12 @@ void Timer_Init(void)
 void TIM2_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)
-	{
+	{ 
 		++time_cnt;
 		if(time_cnt==20000){
-			time_du++,time_cnt=0;
-			OLED_ShowString(3,1,"Time:");
-			OLED_ShowNum(3,6,time_du,3);
+			time_du++;
+			time_cnt=0;
+			OLED_NEW();
 		}
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 

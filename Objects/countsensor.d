@@ -32,3 +32,4 @@
 .\objects\countsensor.o: .\System\Delay.h
 .\objects\countsensor.o: Hardware\Motor.h
 .\objects\countsensor.o: Hardware\LED.h
+.\objects\countsensor.o: Hardware\UART.h

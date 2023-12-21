@@ -1,16 +1,24 @@
+/*
+
+Author:lusunn111
+
+Function:METERIAL SENSOR AND STOP
+
+*/
 #include "stm32f10x.h"                  // Device header
 #include "OLED.h"
 #include "Delay.h"
 #include "Motor.h"
 #include "LED.h"
-uint16_t CountSensor_Count;				//全局变量，用于计数
+#include "UART.h"
+extern uint16_t CountSensor_Count;				//全局变量，用于计数
 
 /**
   * 函    数：计数传感器初始化
   * 参    数：无
   * 返 回 值：无
   */
-extern int8_t flag; 
+extern int8_t QR_flag; 
 extern int8_t time_du;
 void CountSensor_Init(void)
 {
@@ -21,16 +29,16 @@ void CountSensor_Init(void)
 	/*GPIO初始化*/
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);						//将PB14引脚初始化为上拉输入
 	
 	/*AFIO选择中断引脚*/
-	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource14);//将外部中断的14号线映射到GPIOB，即选择PB14为外部中断引脚
+	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource11);//将外部中断的14号线映射到GPIOB，即选择PB14为外部中断引脚
 	
 	/*EXTI初始化*/
 	EXTI_InitTypeDef EXTI_InitStructure;						//定义结构体变量
-	EXTI_InitStructure.EXTI_Line = EXTI_Line14;					//选择配置外部中断的14号线
+	EXTI_InitStructure.EXTI_Line = EXTI_Line11;					//选择配置外部中断的14号线
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;					//指定外部中断线使能
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;			//指定外部中断线为中断模式
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;		//指定外部中断线为下降沿触发
@@ -47,8 +55,8 @@ void CountSensor_Init(void)
 	NVIC_InitTypeDef NVIC_InitStructure;						//定义结构体变量
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;		//选择配置NVIC的EXTI15_10线
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;				//指定NVIC线路使能
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;	//指定NVIC线路的抢占优先级为1
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;			//指定NVIC线路的响应优先级为1
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;	//指定NVIC线路的抢占优先级为1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;			//指定NVIC线路的响应优先级为1
 	NVIC_Init(&NVIC_InitStructure);								//将结构体变量交给NVIC_Init，配置NVIC外设
 }
 
@@ -73,23 +81,23 @@ uint16_t CountSensor_Get(void)
 void EXTI15_10_IRQHandler(void)
 {
 	Delay_ms(30);
-	if (EXTI_GetITStatus(EXTI_Line14) == SET)		//判断是否是外部中断14号线触发的中断
+	if (EXTI_GetITStatus(EXTI_Line11) == SET)		//判断是否是外部中断14号线触发的中断
 	{
+
 		/*如果出现数据乱跳的现象，可再次判断引脚电平，以避免抖动*/
-		if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14) == 0)
+		if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) == 0)
 		{
+//			Delay_ms(100);
+//			UART_STOP();
 			CountSensor_Count ++;					//计数值自增一次
-			OLED_ShowString(2 ,1, "Cnt:");//更新OLED显示
-			OLED_ShowNum(2, 5, CountSensor_Get(), 3);//
-			if(CountSensor_Count<=3&&CountSensor_Count!=flag){//正常金属位置
+			OLED_NEW();
+			if(CountSensor_Count<=3&&CountSensor_Count!=QR_flag){//正常金属位置
 				for(int i = 1;i<=10;++i){
 					LED1_ON();
 					Delay_ms(40);
-//					LED1_OFF();
-//					Delay_ms(20);
 				}
 				LED1_OFF();
-			}else if(CountSensor_Count==flag){//二维码标志金属位置
+			}else if(CountSensor_Count==QR_flag){//二维码标志金属位置
 				Motor_SetSpeed(1,0);
 				Motor_SetSpeed(0,0);
 				for(int i = 1;i*20<=2000;++i){
@@ -98,8 +106,6 @@ void EXTI15_10_IRQHandler(void)
 				}
 				LED1_OFF();
 				time_du+=2;
-				Motor_SetSpeed(1,100);
-				Motor_SetSpeed(0,100);
 			}else if(CountSensor_Count==4){//B位置
 				Motor_SetSpeed(1,0);
 				Motor_SetSpeed(0,0);
@@ -110,13 +116,13 @@ void EXTI15_10_IRQHandler(void)
 					Delay_ms(25);
 				}
 				time_du+=5;
-				Motor_SetSpeed(1,100);
-				Motor_SetSpeed(0,100);
 			}
+//			Delay_ms(50);
+			UART_START();
 		}
-		Delay_ms(30);
-		EXTI_ClearITPendingBit(EXTI_Line14);		//清除外部中断14号线的中断标志位
+		EXTI_ClearITPendingBit(EXTI_Line11);		//清除外部中断14号线的中断标志位
 													//中断标志位必须清除
 													//否则中断将连续不断地触发，导致主程序卡死
 	}
+	Delay_ms(30);
 }

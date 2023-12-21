@@ -1,6 +1,13 @@
+/*
+
+Author:lusunn111
+
+Function:OLED AND GROUP OPERATION
+
+*/
 #include "stm32f10x.h"
 #include "OLED_Font.h"
-
+#include "Encoder.h"
 /*引脚配置*/
 #define OLED_W_SCL(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_8, (BitAction)(x))
 #define OLED_W_SDA(x)		GPIO_WriteBit(GPIOB, GPIO_Pin_9, (BitAction)(x))
@@ -318,4 +325,27 @@ void OLED_Init(void)
 	OLED_WriteCommand(0xAF);	//开启显示
 		
 	OLED_Clear();				//OLED清屏
+}
+extern int8_t Speed_A;
+extern int8_t Speed_B;
+extern int8_t time_du;
+extern uint16_t CountSensor_Count;
+int tmp;
+extern int8_t stop_command;
+void OLED_NEW(){
+	
+	OLED_Clear();
+	OLED_ShowString(1,1,"Sp:");
+	OLED_ShowSignedNum(1,4,Speed_A,3);
+	OLED_ShowSignedNum(1,8,Speed_B,3);
+	OLED_ShowString(2,1,"Time:");
+	OLED_ShowNum(2,6,time_du,2);
+	OLED_ShowString(2,8,"s");
+	OLED_ShowString(3,1,"Cnt:");
+	OLED_ShowNum(3,5,CountSensor_Count,1);
+	OLED_ShowString(4,1,"Dis:");
+	tmp = distance_get();
+	OLED_ShowNum(4,5,tmp,6);
+	OLED_ShowString(4,11,"cm");
+	
 }

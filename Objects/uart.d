@@ -28,3 +28,6 @@
 .\objects\uart.o: .\Library\stm32f10x_usart.h
 .\objects\uart.o: .\Library\stm32f10x_wwdg.h
 .\objects\uart.o: .\Library\misc.h
+.\objects\uart.o: Hardware\Motor.h
+.\objects\uart.o: Hardware\LED.h
+.\objects\uart.o: .\System\Delay.h

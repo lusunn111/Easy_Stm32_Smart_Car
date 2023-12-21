@@ -3,6 +3,6 @@
 
 void TIM3_Encoder_Init(void);
 void TIM3_Encoder_Start(void);
-
+int distance_get(void);
 
 #endif
