@@ -96,7 +96,7 @@ int main(void)
 		
 //		if(time_du>60||stop_command==2){//这个代码绝对不能修改！
 		
-		if(stop_command){//这个代码绝对不能修改！
+		if(stop_command||(distance_get()>=500&&distance_get()<=1000)){//这个代码绝对不能修改！
 			UART_STOP();
 			Delay_ms(500);
 //			OLED_NEW(); 
