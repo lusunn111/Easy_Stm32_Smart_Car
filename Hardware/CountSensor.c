@@ -92,10 +92,8 @@ void EXTI15_10_IRQHandler(void)
 			CountSensor_Count ++;					//计数值自增一次
 			OLED_NEW();
 			if(CountSensor_Count<=3&&CountSensor_Count!=QR_flag){//正常金属位置
-				for(int i = 1;i<=10;++i){
-					LED1_ON();
-					Delay_ms(40);
-				}
+				LED1_ON();
+				Delay_ms(40);
 				LED1_OFF();
 			}else if(CountSensor_Count==QR_flag){//二维码标志金属位置
 				Motor_SetSpeed(1,0);
@@ -118,7 +116,6 @@ void EXTI15_10_IRQHandler(void)
 				time_du+=5;
 			}
 //			Delay_ms(50);
-			UART_START();
 		}
 		EXTI_ClearITPendingBit(EXTI_Line11);		//清除外部中断14号线的中断标志位
 													//中断标志位必须清除

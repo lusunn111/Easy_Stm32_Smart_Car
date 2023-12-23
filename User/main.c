@@ -102,14 +102,13 @@ int main(void)
 //			OLED_NEW(); 
 //			OLED_Clear();
 			
-			OLED_ShowString(1,1,"STOP!");
 			Motor_SetSpeed(1,0);
 			Motor_SetSpeed(0,0);
 			break;
 		}
 		//按键测试代码开始
 //		KeyNum = Key_GetNum();				//获取按键键码
-//		if (KeyNum == 1)					//按键1按下
+//		if (KeyNum == 1)					//按键1按下   
 //		{
 //			Speed += 20;					//速度变量自增20
 //			if (Speed > 100)				//速度变量超过100后

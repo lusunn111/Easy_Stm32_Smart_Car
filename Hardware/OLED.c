@@ -331,13 +331,30 @@ extern int8_t Speed_B;
 extern int8_t time_du;
 extern uint16_t CountSensor_Count;
 int tmp;
+int a[3];
+
 extern int8_t stop_command;
-void OLED_NEW(){
+
+void Chuancan(void){
+	while(CountSensor_Count==1){
+		a[0] = distance_get()-13;
+		break;
+	}
+	while(CountSensor_Count==2){
+		a[1] = distance_get()-13;
+		break;
+	}
+	while(CountSensor_Count==3){
+		a[2] = distance_get()-1;
+		break;
+	}
+
+}
+
+void OLED_NEW(void){
 	
+	Chuancan();
 	OLED_Clear();
-	OLED_ShowString(1,1,"Sp:");
-	OLED_ShowSignedNum(1,4,Speed_A,3);
-	OLED_ShowSignedNum(1,8,Speed_B,3);
 	OLED_ShowString(2,1,"Time:");
 	OLED_ShowNum(2,6,time_du,2);
 	OLED_ShowString(2,8,"s");
@@ -347,5 +364,9 @@ void OLED_NEW(){
 	tmp = distance_get();
 	OLED_ShowNum(4,5,tmp,6);
 	OLED_ShowString(4,11,"cm");
+	OLED_ShowNum(1,1,a[0],2);
+	OLED_ShowNum(1,4,a[1],2);
+	OLED_ShowNum(1,7,a[2],3);
+	OLED_ShowString(1,10,"cm");
 	
 }
